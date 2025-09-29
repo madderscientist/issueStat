@@ -78,9 +78,7 @@ jobs:
 
       - name: Force-push dashboard tag 🏷️
         run: |
-          JSON="{\"total\":${{ steps.stats.outputs.total }},\
-                 \"labels\":${{ steps.stats.outputs.labels }},\
-                 \"updated\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+          JSON="{\"total\":${{ steps.stats.outputs.total }},\"labels\":${{ steps.stats.outputs.labels }},\"updated\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
 
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
