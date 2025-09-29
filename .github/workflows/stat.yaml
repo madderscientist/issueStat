@@ -32,9 +32,8 @@ jobs:
               # closed:issues(states:CLOSED){totalCount}
             }
           }'
-          TOTAL_JSON=$(gh api graphql -f query="$TOTAL_QUERY" -F owner="$OWNER" -F name="$REPO" --jq '
-            # [.data.repository.open.totalCount,.data.repository.closed.totalCount] | add')
-            .data.repository.open.totalCount')
+          TOTAL_JSON=$(gh api graphql -f query="$TOTAL_QUERY" -F owner="$OWNER" -F name="$REPO" --jq '.data.repository.open.totalCount')
+          # [.data.repository.open.totalCount,.data.repository.closed.totalCount] | add')
           echo "total=$TOTAL_JSON" >> $GITHUB_OUTPUT
 
           # 2. 拿所有 open issue 的 labels（分页到完）
