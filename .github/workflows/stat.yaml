@@ -20,6 +20,7 @@ jobs:
 
       - name: Aggregate stats via GraphQL
         id: stats
+        shell: bash
         run: |
           # 需要两个变量：仓库 owner 与 name
           OWNER="${{ github.repository_owner }}"
@@ -60,10 +61,11 @@ jobs:
           done
 
           # 拼 JSON 对象
-          LABELS_JSON=$(printf "%s\n" "${!COUNT[@]}" | \
-                        jq -R -s -c 'split("\n")[:-1] |
-                        map({key:., value: (env.COUNT[.] | tonumber)}) |
-                        from_entries')
+          LABELS_JSON="{"
+          for L in "${!COUNT[@]}"; do
+            LABELS_JSON+="\"${L//\"/\\\"}\":${COUNT[$L]},"
+          done
+          LABELS_JSON="${LABELS_JSON%,}}"
           echo "labels=$LABELS_JSON" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ github.token }}
