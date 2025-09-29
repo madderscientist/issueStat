@@ -36,3 +36,26 @@ After grilling an LLM, an unexpected answer popped up: store the JSON inside the
     ``` 
 2. The workflow will run automatically on issue events. To avoid repeated triggering, 'label' related triggers were not included.
 3. You can fetch the statistics using the provided `getStat.js` script.
+4. Data Content Description:
+  ```json
+  {
+    "total": 10,
+    "labels": {
+      "help wanted":4,
+      "question":4,
+      "bug":4,
+      "invalid":4,
+      "duplicate":2,
+      "wontfix":2,
+      "documentation":2,
+      "enhancement":3,
+      "good first issue":1
+    },
+    "recentCreatedAt": [10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    "updated": "2025-09-29T15:02:00.947Z"
+  }
+  ```
+  - `total`: Total number of issues
+  - `labels`: Number of issues under each label
+  - `recentCreatedAt`: The i-th element represents the number of issues created within i days before `updated`
+  - `updated`: The time when the statistics were generated

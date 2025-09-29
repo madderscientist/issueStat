@@ -32,3 +32,26 @@
     ``` 
 2. 当 issue 发生变动时（为减少触发次数，未包含 label 相关事件），会自动统计并更新数据。
 3. 使用 [`getStat.js`](./getStat.js) 脚本获取统计数据。
+4. 数据内容说明：
+    ```json
+    {
+        "total": 10,
+        "labels": {
+            "help wanted":4,
+            "question":4,
+            "bug":4,
+            "invalid":4,
+            "duplicate":2,
+            "wontfix":2,
+            "documentation":2,
+            "enhancement":3,
+            "good first issue":1
+        },
+        "recentCreatedAt": [10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        "updated": "2025-09-29T15:02:00.947Z"
+    }
+    ```
+    - `total`: 总数
+    - `labels`: 各个label下issue的数目
+    - `recentCreatedAt`: 第`i`个表示距离`updated` `i`天内的提交数目
+    - `updated`: 统计时间
