@@ -8,6 +8,7 @@ on:
         description: '要推送的 tag 名称'
         required: false
         default: dashboard
+        type: string
   issues:
     types: [opened, closed, reopened]
     # , labeled, unlabeled] 会重复触发，因此注释掉
