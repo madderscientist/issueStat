@@ -20,6 +20,8 @@ const headers = {
     'User-Agent': 'issue-stats-action'
 };
 
+const now = Date.now();
+
 async function fetchGraphQL(query, variables) {
     const res = await fetch('https://api.github.com/graphql', {
         method: 'POST',
@@ -53,7 +55,6 @@ repository(owner:$owner,name:$name){
     // 时间分布
     const recentCreatedAt = Array(30).fill(0); // 30天内，每天创建的issue数目
     const aDay = 24 * 60 * 60 * 1000;       // 一天的毫秒数
-    const since = Date.now() - 30 * aDay;   // 30天前的时间戳
 
     let cursor = null;
     let hasNextPage = true;
@@ -70,9 +71,9 @@ repository(owner:$owner,name:$name){
             }
             // 统计每天创建的 issue 数目
             const createdTime = new Date(issue.createdAt).getTime();
-            if (createdTime >= since) {
-                const dayIndex = Math.floor((createdTime - since) / aDay);
-                recentCreatedAt[dayIndex]++;
+            const dt = (now - createdTime) / aDay;
+            if (dt < 30) {
+                recentCreatedAt[Math.floor(dt)]++;
             }
         }
         hasNextPage = data.data.repository.issues.pageInfo.hasNextPage;
@@ -93,12 +94,16 @@ async function main() {
     // 删除本地/远程旧 tag
     try { execSync(`git tag -d ${tagName}`); } catch { }
     try { execSync(`git push origin :refs/tags/${tagName}`); } catch { }
-
-    // 新建附注 tag
-    execSync(`git tag -a ${tagName} -m "${json}" ${SHA}`);
+    
+    // 新建附注 tag，先写入临时文件，避免引号的问题
+    const fs = require('fs');
+    const os = require('os');
+    const path = require('path');
+    const tmpFile = path.join(os.tmpdir(), `tagmsg_${now}.txt`);
+    fs.writeFileSync(tmpFile, json, 'utf8');
+    execSync(`git tag -a ${tagName} -F "${tmpFile}" ${SHA}`);
     execSync(`git push origin ${tagName} --force`);
-
-    console.log(`${tagName} tag pushed:`, json);
+    fs.unlinkSync(tmpFile);
 }
 
 main().catch(e => {
