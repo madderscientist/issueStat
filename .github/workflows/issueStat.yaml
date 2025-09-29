@@ -1,0 +1,44 @@
+name: Issue-Stats
+description: 统计 issue 并推送到 tag message
+
+on:
+  workflow_call:
+    inputs:
+      tag_name:
+        description: '要推送的 tag 名称'
+        required: false
+        default: dashboard
+  issues:
+    types: [opened, closed, reopened]
+    # , labeled, unlabeled] 会重复触发，因此注释掉
+  workflow_dispatch:
+    # 允许手动触发
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install node-fetch@2
+
+      - name: Run stat.js
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: node .github/workflows/issueStat.js

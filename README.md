@@ -4,7 +4,7 @@
 [English README](./README.en.md)
 
 ## 功能
-- 提供一个 [GitHub Action 脚本](.github/workflows/stat.yaml)，在 issue 变动时自动统计各 label 下的 issue 数量
+- 提供一个 [GitHub Action 脚本](.github/workflows/issueStat.yaml)，在 issue 变动时自动统计各 label 下的 issue 数量
 - 将统计数据以 JSON 格式存储在名为 `dashboard` 的 tag message 中
 - 提供一个[示例脚本](./getStat.js)，可通过 GitHub API 获取并解析统计信息
 
@@ -21,7 +21,14 @@
 
 在逼问LLM后，我得到了一个意想不到的方式：**将信息存储在 tag 的 message 中**！于是有了本项目。
 
-## 使用方法
-1. 将工作流文件复制到你的仓库 [`.github/workflows/stat.yaml`](.github/workflows/stat.yaml)。
+## 使用
+1. 将工作流文件复制到你的仓库 [`.github/workflows/issueStat.yaml`](.github/workflows/issueStat.yaml)，或者使用如下代码引用：
+    ```yaml
+    jobs:
+      stats:
+        uses: madderscientist/issueStat/.github/workflows/issueStat.yaml@main
+        with:
+          tag_name: dashboard
+    ``` 
 2. 当 issue 发生变动时（为减少触发次数，未包含 label 相关事件），会自动统计并更新数据。
 3. 使用 [`getStat.js`](./getStat.js) 脚本获取统计数据。

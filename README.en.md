@@ -26,6 +26,13 @@ After grilling an LLM, an unexpected answer popped up: store the JSON inside the
 
 
 ## Usage
-1. Copy the workflow file to `.github/workflows/stat.yaml` in your repository.
+1. Copy the workflow file to `.github/workflows/issueStat.yaml` in your repository, or reference it with the following code:
+    ```yaml
+    jobs:
+      stats:
+        uses: madderscientist/issueStat/.github/workflows/issueStat.yaml@main
+        with:
+          tag_name: dashboard
+    ``` 
 2. The workflow will run automatically on issue events. To avoid repeated triggering, 'label' related triggers were not included.
 3. You can fetch the statistics using the provided `getStat.js` script.
