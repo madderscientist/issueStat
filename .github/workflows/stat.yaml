@@ -13,6 +13,9 @@ jobs:
   stats:
     runs-on: ubuntu-latest
     steps:
+      - name: Set up GitHub CLI
+        run: sudo apt-get update && sudo apt-get install gh -y
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -22,6 +25,8 @@ jobs:
         id: stats
         shell: bash
         run: |
+          set -e
+          set -x
           # 需要两个变量：仓库 owner 与 name
           OWNER="${{ github.repository_owner }}"
           REPO="${{ github.event.repository.name }}"
