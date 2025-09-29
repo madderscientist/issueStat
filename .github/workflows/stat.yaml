@@ -58,7 +58,10 @@ jobs:
             # 本轮 labels 计数
             echo "$RES" | jq -r '.data.repository.issues.nodes[]
                                  | .labels.nodes[].name' | \
-            while read L; do ((COUNT[$L]++)); done
+            while read -r L; do
+              [[ -z "$L" ]] && continue
+              ((COUNT["$L"]++))
+            done
             # 是否继续分页
             HAS=$(echo "$RES" | jq -r '.data.repository.issues.pageInfo.hasNextPage')
             [[ "$HAS" == "true" ]] || break
