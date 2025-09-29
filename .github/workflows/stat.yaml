@@ -1,7 +1,8 @@
 name: Dashboard-Stats
 on:
   issues:
-    types: [opened, closed, reopened, labeled, unlabeled]
+    types: [opened, closed, reopened]
+    # , labeled, unlabeled] 会重复触发，因此注释掉。人为分配tag后可以手动触发
   workflow_dispatch:
 
 permissions:
@@ -65,6 +66,8 @@ jobs:
                         map({key:., value: (env.COUNT[.] | tonumber)}) |
                         from_entries')
           echo "labels=$LABELS_JSON" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Force-push dashboard tag 🏷️
         run: |
@@ -82,3 +85,5 @@ jobs:
           # 新建附注 tag
           git tag -a dashboard -m "$JSON" ${{ github.sha }}
           git push origin dashboard --force
+        env:
+          GH_TOKEN: ${{ github.token }}
