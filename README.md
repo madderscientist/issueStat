@@ -1,2 +1,2 @@
-# issueStat
+# 统计issue
 每次提交issue时执行issue的统计，用于终端的issue总览、而不必使用GraphQL查询

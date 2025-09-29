@@ -1,0 +1,85 @@
+name: Dashboard-Stats
+on:
+  issues:
+    types: [opened, closed, reopened, labeled, unlabeled]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+  metadata: read
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要 force-push tag
+
+      - name: Aggregate stats via GraphQL
+        id: stats
+        run: |
+          # 需要两个变量：仓库 owner 与 name
+          OWNER="${{ github.repository_owner }}"
+          REPO="${{ github.event.repository.name }}"
+
+          # 1. 拿总 issue 数（open + closed）
+          TOTAL_QUERY='query($owner:String!,$name:String!){
+            repository(owner:$owner,name:$name){
+              open:issues(states:OPEN){totalCount}
+              # closed:issues(states:CLOSED){totalCount}
+            }
+          }'
+          TOTAL_JSON=$(gh api graphql -f query="$TOTAL_QUERY" -F owner="$OWNER" -F name="$REPO" --jq '
+            # [.data.repository.open.totalCount,.data.repository.closed.totalCount] | add')
+            .data.repository.open.totalCount')
+          echo "total=$TOTAL_JSON" >> $GITHUB_OUTPUT
+
+          # 2. 拿所有 open issue 的 labels（分页到完）
+          LABELS_QUERY='query($owner:String!,$name:String!,$cursor:String){
+            repository(owner:$owner,name:$name){
+              issues(states:OPEN,first:100,after:$cursor){
+                pageInfo{hasNextPage endCursor}
+                nodes{labels(first:100){nodes{name}}}
+              }
+            }
+          }'
+          CURSOR=""
+          declare -A COUNT
+          while :; do
+            RES=$(gh api graphql -f query="$LABELS_QUERY" -F owner="$OWNER" -F name="$REPO" -F cursor="$CURSOR")
+            # 本轮 labels 计数
+            echo "$RES" | jq -r '.data.repository.issues.nodes[]
+                                 | .labels.nodes[].name' | \
+            while read L; do ((COUNT[$L]++)); done
+            # 是否继续分页
+            HAS=$(echo "$RES" | jq -r '.data.repository.issues.pageInfo.hasNextPage')
+            [[ "$HAS" == "true" ]] || break
+            CURSOR=$(echo "$RES" | jq -r '.data.repository.issues.pageInfo.endCursor')
+          done
+
+          # 拼 JSON 对象
+          LABELS_JSON=$(printf "%s\n" "${!COUNT[@]}" | \
+                        jq -R -s -c 'split("\n")[:-1] |
+                        map({key:., value: (env.COUNT[.] | tonumber)}) |
+                        from_entries')
+          echo "labels=$LABELS_JSON" >> $GITHUB_OUTPUT
+
+      - name: Force-push dashboard tag 🏷️
+        run: |
+          JSON="{\"total\":${{ steps.stats.outputs.total }},\
+                 \"labels\":${{ steps.stats.outputs.labels }},\
+                 \"updated\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # 删除本地/远程旧 tag
+          git tag -d dashboard || true
+          git push origin :refs/tags/dashboard || true
+
+          # 新建附注 tag
+          git tag -a dashboard -m "$JSON" ${{ github.sha }}
+          git push origin dashboard --force
