@@ -1,5 +1,5 @@
 name: 'Issue Stat Action'
 description: '统计 issue 并推送到 tag message'
 runs:
-  using: 'node'
+  using: 'node24'
   main: 'issueStat.js'
