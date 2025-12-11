@@ -42,4 +42,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
-        run: node .github/workflows/issueStat.js
+        uses: ./action
