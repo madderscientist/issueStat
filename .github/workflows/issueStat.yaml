@@ -42,4 +42,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
-        uses: ./action
+        uses: madderscientist/issueStat@main
