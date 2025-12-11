@@ -1,7 +1,7 @@
 // 用于统计 issue 总数和 open issue 的 label 分布，并强制推送 dashboard tag
 
 const { execSync } = require('child_process');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch'); // node 18+ 内置 fetch，无需额外安装
 
 const GITHUB_TOKEN = process.env.GH_TOKEN;
 const REPO = process.env.GITHUB_REPOSITORY;
